@@ -17,6 +17,8 @@ class Triangle {
   float scaleFactor = 1;
   
   char tri_type = TRI_TYPE_CENTER;
+  boolean solid = false;
+  color myColor = color(255);
   //char tri_type = TRI_TYPE_CORNER;
     
   Triangle(PVector pos, float sideLength, float rot) {
@@ -37,6 +39,17 @@ class Triangle {
     _vertex3post = _vertex3.get();
     
     pushMatrix();
+    pushStyle();
+
+    if (solid) {
+      fill(myColor);
+    } else {
+      noFill();
+    }
+
+    if (DEBUG) {
+      noFill();
+    }
     
     translate(_pos.x, _pos.y);
     rotate(rotation);
@@ -76,6 +89,8 @@ class Triangle {
 
     //We draw the triangle in local space, oriented with its base at the top and tip pointing downward.
     triangle(_vertex1post.x, _vertex1post.y, _vertex2post.x, _vertex2post.y, _vertex3post.x, _vertex3post.y);
+
+    popStyle();
     popMatrix();
   }
 }

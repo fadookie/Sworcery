@@ -33,7 +33,15 @@ void setup()
   // play the file
   player.play();
   
-  tri = new Trigon(new Triangle(new PVector(width/2, height/2), 10, radians(0)));
+  tri =
+    new Trigon(
+      new Triangle(
+        new PVector(width/2, height/2),
+        10,
+        radians(0)
+      )
+  );
+  tri.centerTri.solid = true;
   noFill();
   strokeCap(SQUARE);
   strokeJoin(MITER);
@@ -74,6 +82,7 @@ void keyPressed() {
       println("screenshot.png saved");
     } else if ('d' == key) {
       DEBUG = !DEBUG;
+      println("DEBUG == " + DEBUG);
     } else if ('s' == key) {
       tScale = !tScale;
     } else if ('r' == key) {
