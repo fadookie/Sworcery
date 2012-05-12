@@ -30,6 +30,14 @@ class Triangle {
     
     _vertex3 = _vertex3polar.getCartesianCoords();
   }
+
+  PVector getPos() {
+    return _pos;
+  }
+
+  float getSideLength() {
+    return _sideLength;
+  }
   
   void draw() {
     _vertex1post.x = 0;
