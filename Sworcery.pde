@@ -7,7 +7,7 @@ import ddf.minim.*;
 
 AudioPlayer player;
 Minim minim;
-Triangle tri;
+Trigon tri;
 
 static final char TRI_TYPE_CORNER = 1;
 static final char TRI_TYPE_CENTER = 2;
@@ -33,7 +33,7 @@ void setup()
   // play the file
   player.play();
   
-  tri = new Triangle(new PVector(width/2, height/2), 10, radians(0));
+  tri = new Trigon(new Triangle(new PVector(width/2, height/2), 10, radians(0)));
   noFill();
   strokeCap(SQUARE);
   strokeJoin(MITER);
@@ -60,10 +60,10 @@ void draw()
   
   tri.draw();
   if (tScale) {
-    tri.scaleFactor += 0.01 * 2;
+    tri.addScale(0.01 * 2);
   }
   if (tRotate) {
-    tri.rotation += radians(1 * 2);
+    tri.addRotation(radians(1 * 2));
   }
 }
 
