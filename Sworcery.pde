@@ -12,7 +12,9 @@ Triangle tri;
 static final char TRI_TYPE_CORNER = 1;
 static final char TRI_TYPE_CENTER = 2;
 
-boolean DEBUG = true;
+boolean DEBUG = false;
+boolean tRotate = false;
+boolean tScale = true;
 
 void setup()
 {
@@ -31,7 +33,7 @@ void setup()
   // play the file
   player.play();
   
-  tri = new Triangle(new PVector(width/2, height/2), 100, radians(0));
+  tri = new Triangle(new PVector(width/2, height/2), 10, radians(0));
   noFill();
   strokeCap(SQUARE);
   strokeJoin(MITER);
@@ -57,17 +59,25 @@ void draw()
   popMatrix();
   
   tri.draw();
-  tri.scaleFactor += 0.01 * 2;
-  tri.rotation += radians(1 * 2);
+  if (tScale) {
+    tri.scaleFactor += 0.01 * 2;
+  }
+  if (tRotate) {
+    tri.rotation += radians(1 * 2);
+  }
 }
 
 void keyPressed() {
   if (CODED != key) {
-    if ('s' == key) {
+    if ('S' == key) {
       saveFrame("screenshot.png");
       println("screenshot.png saved");
     } else if ('d' == key) {
       DEBUG = !DEBUG;
+    } else if ('s' == key) {
+      tScale = !tScale;
+    } else if ('r' == key) {
+      tRotate = !tRotate;
     }
   }
 }
