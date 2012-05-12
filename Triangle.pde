@@ -13,10 +13,11 @@ class Triangle {
   private PVector _vertex1post = new PVector();
   private PVector _vertex2post = new PVector();
   private PVector _vertex3post = new PVector();
+  private PVector _centroid = new PVector();
   float scaleFactor = 1;
   
-  //char tri_type = TRI_TYPE_CENTER;
-  char tri_type = TRI_TYPE_CORNER;
+  char tri_type = TRI_TYPE_CENTER;
+  //char tri_type = TRI_TYPE_CORNER;
     
   Triangle(PVector pos, float sideLength, float rot) {
     //Todo: add getters/setters
@@ -29,31 +30,51 @@ class Triangle {
   }
   
   void draw() {
-    _vertex1post = _pos.get();
+    _vertex1post.x = 0;
+    _vertex1post.y = 0;
     _vertex2post.x = _sideLength;
     _vertex2post.y = 0;
     _vertex3post = _vertex3.get();
     
     pushMatrix();
     
+    translate(_pos.x, _pos.y);
+    rotate(rotation);
+    
+    //We apply the scaling factor directly to the vertices to ensure clean, 1px lines, scale() doesn't do this for all renderers.
+    //This also lets us caclulate the correct centroid if we are drawing with TRI_TYPE_CENTER
+    _vertex1post.mult(scaleFactor);
+    _vertex2post.mult(scaleFactor);
+    _vertex3post.mult(scaleFactor);
+
+    if (DEBUG) {
+      //Draw pos in red
+      pushStyle();
+      stroke(#FF0000);
+      point(0, 0);
+      popStyle();
+    }
+    
     if (TRI_TYPE_CORNER == tri_type) {
-      translate(_pos.x, _pos.y);
-      rotate(rotation);
-      //We draw the triangle in local space, oriented flat and downward.
-      //We apply the scaling factor directly to the vertices to ensure clean, 1px lines, scale() doesn't do this for all renderers.
-      triangle(0, 0, _sideLength * scaleFactor, 0, _vertex3.x * scaleFactor, _vertex3.y * scaleFactor);
+      //This is the default behavior of the matrix
     } else if (TRI_TYPE_CENTER == tri_type) {
-      translate(_pos.x, _pos.y);
-      
-      //Manually rotate points
-      _vertex1post = QMath.rotatePVector2D(_vertex1post, rotation);
-      
-      _vertex2post = QMath.rotatePVector2D(_vertex2post, rotation);
-      
-      _vertex3post = QMath.rotatePVector2D(_vertex3post, rotation);
+      //Offset the triangle drawing so that its centroid is at 0,0
+      _centroid.x = (_vertex1post.x + _vertex2post.x + _vertex3post.x) / 3;
+      _centroid.y = (_vertex1post.y + _vertex2post.y + _vertex3post.y) / 3;
+      translate(-_centroid.x, -_centroid.y);
     } else {
       println("ERROR: Triangle[" + this + "].draw(): Unrecognized triangle type.");
     }
+    
+    if (DEBUG) {
+      //Draw 0,0 in local space in green
+      pushStyle();
+      stroke(#00FF00);
+      point(0, 0);
+      popStyle();
+    }
+
+    //We draw the triangle in local space, oriented with its base at the top and tip pointing downward.
     triangle(_vertex1post.x, _vertex1post.y, _vertex2post.x, _vertex2post.y, _vertex3post.x, _vertex3post.y);
     popMatrix();
   }

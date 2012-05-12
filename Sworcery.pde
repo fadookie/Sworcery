@@ -12,6 +12,8 @@ Triangle tri;
 static final char TRI_TYPE_CORNER = 1;
 static final char TRI_TYPE_CENTER = 2;
 
+boolean DEBUG = true;
+
 void setup()
 {
   size(800, 800);
@@ -55,8 +57,8 @@ void draw()
   popMatrix();
   
   tri.draw();
-  //tri.scaleFactor += 0.01 * 2;
-  //tri.rotation += radians(1 * 2);
+  tri.scaleFactor += 0.01 * 2;
+  tri.rotation += radians(1 * 2);
 }
 
 void keyPressed() {
@@ -64,6 +66,8 @@ void keyPressed() {
     if ('s' == key) {
       saveFrame("screenshot.png");
       println("screenshot.png saved");
+    } else if ('d' == key) {
+      DEBUG = !DEBUG;
     }
   }
 }
