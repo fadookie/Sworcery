@@ -9,8 +9,12 @@ AudioPlayer player;
 Minim minim;
 Trigon trigon;
 
+//Ways to draw a triangle, for Triangle#tri_type
 static final char TRI_TYPE_CORNER = 1;
 static final char TRI_TYPE_CENTER = 2;
+
+//Types of Trigon pulses, for Trigon#triggerPulse
+static final char PULSE_TYPE_PUSH = 1;
 
 boolean DEBUG = false;
 boolean tRotate = false;
@@ -23,6 +27,10 @@ void setup()
   noSmooth();
   strokeWeight(1);
 
+  noFill();
+  strokeCap(SQUARE);
+  strokeJoin(MITER);
+
   minim = new Minim(this);
   
   // load a file, give the AudioPlayer buffers that are 1024 samples long
@@ -33,18 +41,15 @@ void setup()
   // play the file
   player.play();
   
-  trigon =
-    new Trigon(
-      new Triangle(
-        new PVector(width/2, height/2),
-        10,
-        radians(0)
-      )
+  Triangle centerTri = new Triangle(
+    new PVector(width/2, height/2),
+    100,
+    radians(0)
   );
-  trigon.centerTri.solid = true;
-  noFill();
-  strokeCap(SQUARE);
-  strokeJoin(MITER);
+  centerTri.solid = true;
+  centerTri.myColor = color(212, 222, 177);
+
+  trigon = new Trigon(centerTri);
 }
 
 void draw()

@@ -16,10 +16,10 @@ class Triangle {
   private PVector _centroid = new PVector();
   float scaleFactor = 1;
   
+  //char tri_type = TRI_TYPE_CORNER;
   char tri_type = TRI_TYPE_CENTER;
   boolean solid = false;
   color myColor = color(255);
-  //char tri_type = TRI_TYPE_CORNER;
     
   Triangle(PVector pos, float sideLength, float rot) {
     //Todo: add getters/setters
@@ -50,12 +50,15 @@ class Triangle {
     pushStyle();
 
     if (solid) {
+      noStroke();
       fill(myColor);
     } else {
+      stroke(myColor);
       noFill();
     }
 
     if (DEBUG) {
+      stroke(myColor);
       noFill();
     }
     
@@ -100,5 +103,9 @@ class Triangle {
 
     popStyle();
     popMatrix();
+  }
+
+  String toString() {
+    return "Triangle {" + " _pos:"  + _pos + ", scaleFactor:" + scaleFactor + ", rotation:" + rotation + "}";
   }
 }
