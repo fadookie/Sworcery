@@ -68,6 +68,7 @@ void setup()
   centerTri.myColor = color(212, 222, 177);
 
   trigon = new Trigon(centerTri);
+  trigon.scaleFactor = 0.01;
 
   // play music
   //music.cue(25000);
@@ -78,10 +79,11 @@ void setup()
   //Setup timed events
   {
     HashMap<String, Object> settings = new HashMap<String, Object>();
-    settings.put("maxScale", new Integer(5));
+    settings.put("maxScale", new Float(1.5));
+    settings.put("startScale", new Float(0.01));
     events.add(new TimeEvent(EVENT_TYPE_SCALE, EVENT_NO_SUBTYPE, 0, 28500, settings));
   }
-  events.add(new TimeEvent(EVENT_TYPE_PULSE, PULSE_TYPE_PUSH, 28500));
+  events.add(new TimeEvent(EVENT_TYPE_PULSE, PULSE_TYPE_PUSH, 28500, 45031));
 
 }
 
@@ -132,10 +134,11 @@ void draw()
   Iterator<TimeEvent> currentEventsIterator = currentEvents.iterator();
   while (currentEventsIterator.hasNext()) {
     TimeEvent currentEvent = currentEventsIterator.next();
-    if (currentEvent.duration > 0
-        && (music.position() - currentEvent.start) > currentEvent.duration
+    if (currentEvent.getDuration() > 0
+        && (music.position() - currentEvent.start) > currentEvent.getDuration()
     ){
       //This event is over
+      println(currentEvent + " is over at cue " + music.position());
       currentEventsIterator.remove();
     } else {
       //This event is still running
@@ -146,9 +149,10 @@ void draw()
           trigon.triggerPulse(currentEvent.subtype);
         }
       } else if (EVENT_TYPE_SCALE == currentEvent.type) {
-        Integer maxScale = (Integer)currentEvent.additionalSettings.get("maxScale");
+        Float maxScale = (Float)currentEvent.additionalSettings.get("maxScale");
+        Float startScale = (Float)currentEvent.additionalSettings.get("startScale");
         if (maxScale != null) {
-          trigon.scaleFactor = lerp(1, maxScale, currentEvent.getCompletion(music.position()));
+          trigon.scaleFactor = lerp(startScale, maxScale, currentEvent.getCompletion(music.position()));
         } else {
           //Default to just scaling it up
           trigon.scaleFactor += 0.01;

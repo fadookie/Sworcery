@@ -2,7 +2,7 @@ class TimeEvent {
     char type;
     char subtype;
     float start;
-    float duration = -1; //Defaults to no end
+    float end = -1; //Defaults to no end, signified by -1
     HashMap<String, Object> additionalSettings = new HashMap<String, Object>();
 
     TimeEvent() {
@@ -14,29 +14,41 @@ class TimeEvent {
       start = _start;
     }
 
-    TimeEvent(char _type, char _subtype, float _start, float _duration) {
+    TimeEvent(char _type, char _subtype, float _start, float _end) {
       type = _type;
       subtype = _subtype;
       start = _start;
-      duration = _duration;
+      end = _end;
     }
 
-    TimeEvent(char _type, char _subtype, float _start, float _duration, HashMap<String, Object> _additionalSettings) {
+    TimeEvent(char _type, char _subtype, float _start, float _end, HashMap<String, Object> _additionalSettings) {
       type = _type;
       subtype = _subtype;
       start = _start;
-      duration = _duration;
+      end = _end;
       additionalSettings = _additionalSettings;
     }
 
     /**
-     * Get completion as a percentage between 0 and 1
+     * Get duration in Ms, -1 means unknown (no end specified)
+     */
+    float getDuration() {
+      if (-1 == end) {
+        return end;
+      } else {
+        return end - start;
+      }
+    }
+
+    /**
+     * Get completion as a percentage between 0 and 1. 0 will always be returned for events with no set end time.
      */
     float getCompletion(float currentTime) {
-      return constrain((currentTime - start) / duration, 0, 1);
+      if (-1 == end) return 0;
+      return constrain((currentTime - start) / getDuration(), 0, 1);
     }
 
     String toString() {
-      return "TimeEvent {" + " type:" + (int)type + " subtype:" + (int)subtype + " start:" + start + " duration:" + duration + " }";
+      return "TimeEvent {" + " type:" + (int)type + " subtype:" + (int)subtype + " start:" + start + " end:" + end + " }";
     }
 }
