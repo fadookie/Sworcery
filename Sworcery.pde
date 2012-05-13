@@ -17,8 +17,10 @@ static final char TRI_TYPE_CORNER = 1;  //Treat Triangle#pos as upper left corne
 static final char TRI_TYPE_CENTROID = 2; //Treat Triangle#pos as centroid of triangle
 
 //Types of Trigon pulses, for Trigon#triggerPulse
-static final char PULSE_TYPE_PUSH = 1; //push border out by one and add another border in the center
-static final char PULSE_TYPE_SQUEEZE = 2; //Throb center triangle, squeeze
+static final char PULSE_TYPE_PUSH = 1; //Push border out by one and add another border in the center
+static final char PULSE_TYPE_PUSH_EMPTY = 2; //Push border out by one and add another border in the center
+static final char PULSE_TYPE_SQUEEZE = 3; //Throb center triangle, squeeze
+static final char PULSE_TYPE_ADD_BORDER = 4; //Add border around current one, up to specified max border amount
 
 boolean DEBUG = false;
 boolean tRotate = false;
@@ -160,6 +162,10 @@ void keyPressed() {
       trigon.triggerPulse(PULSE_TYPE_PUSH);
     } else if ('t' == key) {
       trigon.triggerPulse(PULSE_TYPE_SQUEEZE);
+    } else if ('b' == key) {
+      trigon.triggerPulse(PULSE_TYPE_ADD_BORDER);
+    } else if ('e' == key) {
+      trigon.triggerPulse(PULSE_TYPE_PUSH_EMPTY);
     }
   }
 }

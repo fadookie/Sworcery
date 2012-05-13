@@ -42,6 +42,19 @@ class Trigon {
         Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() + 1, centerTri.rotation);
         newTri.myColor = myColor;
         _borderTris.addFirst(newTri);
+      } else if (PULSE_TYPE_PUSH_EMPTY == currentPulseType) {
+        if (_borderTris.size() > 0) {
+          //Only bother adding a spacer if there are already borders
+          Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() + 1, centerTri.rotation);
+          newTri.visible = false;
+          _borderTris.addFirst(newTri);
+        }
+      } else if (PULSE_TYPE_ADD_BORDER == currentPulseType) {
+        if (_borderTris.size() < maxBorders) {
+          Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() + _borderTris.size(), centerTri.rotation);
+          newTri.myColor = myColor;
+          _borderTris.addLast(newTri);
+        }
       }
     }
   }
@@ -57,7 +70,9 @@ class Trigon {
       if ((millis() - lastPulse) > pulseDuration) {
         //The pulse is over
         isPulseAnimating = false;
-        if (PULSE_TYPE_PUSH == currentPulseType) {
+        if (PULSE_TYPE_PUSH == currentPulseType
+            || PULSE_TYPE_PUSH_EMPTY == currentPulseType
+        ) {
           //If we are over the border limit and done animating, remove the last border
           if (_borderTris.size() > maxBorders) {
             _borderTris.removeLast();
@@ -66,7 +81,9 @@ class Trigon {
       } else {
         float pulsePercentComplete = (millis() - lastPulse) / pulseDuration;
         //Pulse is animating
-        if (PULSE_TYPE_PUSH == currentPulseType) {
+        if (PULSE_TYPE_PUSH == currentPulseType
+            || PULSE_TYPE_PUSH_EMPTY == currentPulseType
+        ) {
           throbCenterTriangle(pulsePercentComplete);
 
           if (pulsePercentComplete < 0.5) {
@@ -82,27 +99,34 @@ class Trigon {
           }
 
           //Process colors
-          /*
-          for (Triangle tri : _borderTris) {
-            tri.myColor = #FFFFFF;
-            tri.opacity = 255;
+          if (DEBUG) {
+            for (Triangle tri : _borderTris) {
+              tri.myColor = #FFFFFF;
+              tri.opacity = 255;
+            }
           }
-          */
+
           Triangle first = _borderTris.getFirst();
-          //first.myColor = #0000FF;
           if (first.visible) {
+            if (DEBUG) first.myColor = #0000FF;
             first.opacity = lerp(50, 255, pulsePercentComplete);
           }
 
           Triangle last = _borderTris.getLast();
-          //last.myColor = #00FF00;
-          //If we are going over the border limit, fade the last border out
           if (last.visible) {
+            //If we are going over the border limit, fade the last border out
             if (_borderTris.size() > maxBorders) {
+              if (DEBUG) last.myColor = #00FF00;
               last.opacity = lerp(255, 0, pulsePercentComplete);
             }
           }
 
+        } else if (PULSE_TYPE_ADD_BORDER == currentPulseType) {
+          Triangle last = _borderTris.getLast();
+          //If we are not over border limit, fade in the new border
+          if (_borderTris.size() < maxBorders) {
+            last.opacity = lerp(255, 0, pulsePercentComplete);
+          }
         } else if (PULSE_TYPE_SQUEEZE == currentPulseType) {
           throbCenterTriangle(pulsePercentComplete);
         }
