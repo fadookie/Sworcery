@@ -3,7 +3,6 @@ class TimeEvent {
     char subtype;
     float start;
     float duration = -1; //Defaults to no end
-    boolean started = false;
 
     TimeEvent() {
     }
@@ -19,5 +18,9 @@ class TimeEvent {
       subtype = _subtype;
       start = _start;
       duration = _duration;
+    }
+
+    String toString() {
+      return "TimeEvent {" + " type:" + (int)type + " subtype:" + (int)subtype + " start:" + start + " duration:" + duration + " }";
     }
 }

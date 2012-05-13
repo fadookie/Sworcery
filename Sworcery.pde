@@ -10,14 +10,15 @@ Minim minim;
 Trigon trigon;
 
 //Types of TimeEvents
-static final char EVENT_TYPE_PULSE = 1;
+static final char EVENT_TYPE_PULSE = 1; //Change how a trigon is pulsing
 
 //Ways to draw a triangle, for Triangle#tri_type
-static final char TRI_TYPE_CORNER = 1;
-static final char TRI_TYPE_CENTER = 2;
+static final char TRI_TYPE_CORNER = 1;  //Treat Triangle#pos as upper left corner of triangle
+static final char TRI_TYPE_CENTROID = 2; //Treat Triangle#pos as centroid of triangle
 
 //Types of Trigon pulses, for Trigon#triggerPulse
-static final char PULSE_TYPE_PUSH = 1;
+static final char PULSE_TYPE_PUSH = 1; //push border out by one and add another border in the center
+static final char PULSE_TYPE_SQUEEZE = 2; //Throb center triangle, squeeze
 
 boolean DEBUG = false;
 boolean tRotate = false;
@@ -61,14 +62,15 @@ void setup()
 
   trigon = new Trigon(centerTri);
 
-  //Setup timed events
-  events.add(new TimeEvent(EVENT_TYPE_PULSE, PULSE_TYPE_PUSH, 31110));
-
   // play music
+  //music.cue(25000);
   music.play();
   timeSongStarted = millis();
-  lastPulseTime = timeSongStarted;
   println("songStarted = " + timeSongStarted);
+
+  //Setup timed events
+  events.add(new TimeEvent(EVENT_TYPE_PULSE, PULSE_TYPE_PUSH, 28500));
+
 }
 
 void draw()
@@ -102,18 +104,35 @@ void draw()
     TimeEvent nextEvent = events.peek();
 
     if (null != nextEvent
-        && millis() > nextEvent.start
+        && music.position() > nextEvent.start
     ){
         //Time for this event to happen!
-        currentEvents.add(events.pop());
+        TimeEvent event = events.pop();
+        currentEvents.add(event);
+        println(event + " is starting at audio cue " + music.position());
     }
   } catch (NoSuchElementException e) {
   }
 
 
-  if ((millis() - lastPulseTime) > pulseInterval) {
-    lastPulseTime = millis();
-    trigon.triggerPulse(PULSE_TYPE_PUSH);
+  Iterator<TimeEvent> currentEventsIterator = currentEvents.iterator();
+  while (currentEventsIterator.hasNext()) {
+    TimeEvent currentEvent = currentEventsIterator.next();
+    if (currentEvent.duration > 0
+        && (music.position() - currentEvent.start) > currentEvent.duration
+    ){
+      //This event is over
+      currentEventsIterator.remove();
+    } else {
+      //This event is still running
+
+      if (EVENT_TYPE_PULSE == currentEvent.type) {
+        if ((millis() - lastPulseTime) > pulseInterval) {
+          lastPulseTime = millis();
+          trigon.triggerPulse(PULSE_TYPE_PUSH);
+        }
+      }
+    }
   }
 
   trigon.update();
@@ -139,6 +158,8 @@ void keyPressed() {
       tRotate = !tRotate;
     } else if ('p' == key) {
       trigon.triggerPulse(PULSE_TYPE_PUSH);
+    } else if ('t' == key) {
+      trigon.triggerPulse(PULSE_TYPE_SQUEEZE);
     }
   }
 }

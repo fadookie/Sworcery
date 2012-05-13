@@ -3,9 +3,8 @@ class Trigon {
   Triangle centerTri;
   private ArrayDeque<Triangle> _borderTris = new ArrayDeque<Triangle>();
 
-  int numBorders = 3;
+  int maxBorders = 3;
 
-  private float _prePulseScaleFactor;
   float scaleFactor;
   float rotation;
 
@@ -23,9 +22,9 @@ class Trigon {
     rotation = t.rotation;
     myColor = t.myColor;
 
-    for (int i = 0; i < numBorders; i++) {
+    for (int i = 0; i < maxBorders; i++) {
       Triangle tri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength(), centerTri.rotation);
-      tri.setSideLengthScale(i + 2);
+      tri.setSideLengthScale(i + 2); //Needs to be at least one, so we add 1. Needs to be 1 level above the center triangle, so we add 1 again.
       tri.myColor = myColor;
       _borderTris.add(tri);
     }
@@ -37,7 +36,6 @@ class Trigon {
       lastPulse = millis();
       currentPulseType = pulseType;
       isPulseAnimating = true;
-      _prePulseScaleFactor = scaleFactor;
       //Pulse center triangle
       if (PULSE_TYPE_PUSH == currentPulseType) {
         //push border out by one and add another border in the center
@@ -60,26 +58,26 @@ class Trigon {
         //The pulse is over
         isPulseAnimating = false;
         if (PULSE_TYPE_PUSH == currentPulseType) {
-          _borderTris.removeLast();
-          scaleFactor = _prePulseScaleFactor;
+          //If we are over the border limit and done animating, remove the last border
+          if (_borderTris.size() > maxBorders) {
+            _borderTris.removeLast();
+          }
         }
       } else {
         float pulsePercentComplete = (millis() - lastPulse) / pulseDuration;
         //Pulse is animating
         if (PULSE_TYPE_PUSH == currentPulseType) {
-          if (pulsePercentComplete > 0.5){
-            //We're at least halfway done with the pulse
-            //Snap the center triangle back
-            centerTri.scaleFactorMultiplier = lerp(_prePulseScaleFactor + centerTriPulseAmount, _prePulseScaleFactor, pulsePercentComplete);
-          } else {
+          throbCenterTriangle(pulsePercentComplete);
+
+          if (pulsePercentComplete < 0.5) {
             //We're less than halfway done with the pulse
-            //Pulse the center triangle out
-            centerTri.scaleFactorMultiplier = lerp(_prePulseScaleFactor, _prePulseScaleFactor + centerTriPulseAmount, pulsePercentComplete);
             //Enlarge all the borders over time to make room for the incoming border
-            int centerEdgeOffsetCounter = 0;
-            for (Triangle tri : _borderTris) {
-              tri.setSideLengthScale(lerp(centerEdgeOffsetCounter + 1, centerEdgeOffsetCounter + 2, pulsePercentComplete * 2));
-              centerEdgeOffsetCounter++;
+            {
+              int centerEdgeOffsetCounter = 0;
+              for (Triangle tri : _borderTris) {
+                tri.setSideLengthScale(lerp(centerEdgeOffsetCounter + 1, centerEdgeOffsetCounter + 2, pulsePercentComplete * 2));
+                centerEdgeOffsetCounter++;
+              }
             }
           }
 
@@ -92,14 +90,36 @@ class Trigon {
           */
           Triangle first = _borderTris.getFirst();
           //first.myColor = #0000FF;
-          first.opacity = lerp(50, 255, pulsePercentComplete);
+          if (first.visible) {
+            first.opacity = lerp(50, 255, pulsePercentComplete);
+          }
 
           Triangle last = _borderTris.getLast();
           //last.myColor = #00FF00;
-          last.opacity = lerp(255, 0, pulsePercentComplete);
+          //If we are going over the border limit, fade the last border out
+          if (last.visible) {
+            if (_borderTris.size() > maxBorders) {
+              last.opacity = lerp(255, 0, pulsePercentComplete);
+            }
+          }
+
+        } else if (PULSE_TYPE_SQUEEZE == currentPulseType) {
+          throbCenterTriangle(pulsePercentComplete);
         }
       }
     }
+  }
+
+  void throbCenterTriangle(float pulsePercentComplete) {
+      if (pulsePercentComplete > 0.5){
+        //We're at least halfway done with the pulse
+        //Snap the center triangle back
+        centerTri.scaleFactorMultiplier = lerp(scaleFactor + centerTriPulseAmount, scaleFactor, pulsePercentComplete);
+      } else {
+        //We're less than halfway done with the pulse
+        //Pulse the center triangle out
+        centerTri.scaleFactorMultiplier = lerp(scaleFactor, scaleFactor + centerTriPulseAmount, pulsePercentComplete);
+      }
   }
 
   void updateTriangle(Triangle t) {

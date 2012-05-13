@@ -19,10 +19,11 @@ class Triangle {
   float scaleFactorMultiplier = 1;
   
   //char tri_type = TRI_TYPE_CORNER;
-  char tri_type = TRI_TYPE_CENTER;
+  char tri_type = TRI_TYPE_CENTROID;
   boolean solid = false;
   color myColor = color(255);
   float opacity = 255;
+  boolean visible = true;
     
   Triangle(PVector pos, float sideLength, float rot) {
     //Todo: add getters/setters
@@ -95,7 +96,7 @@ class Triangle {
     rotate(rotation);
     
     //We apply the scaling factor directly to the vertices to ensure clean, 1px lines, scale() doesn't do this for all renderers.
-    //This also lets us caclulate the correct centroid if we are drawing with TRI_TYPE_CENTER
+    //This also lets us caclulate the correct centroid if we are drawing with TRI_TYPE_CENTROID
     _vertex1post.mult(getTotalScaleFactor());
     _vertex2post.mult(getTotalScaleFactor());
     _vertex3post.mult(getTotalScaleFactor());
@@ -110,7 +111,7 @@ class Triangle {
     
     if (TRI_TYPE_CORNER == tri_type) {
       //This is the default behavior of the matrix
-    } else if (TRI_TYPE_CENTER == tri_type) {
+    } else if (TRI_TYPE_CENTROID == tri_type) {
       //Offset the triangle drawing so that its centroid is at 0,0
       _centroid.x = (_vertex1post.x + _vertex2post.x + _vertex3post.x) / 3;
       _centroid.y = (_vertex1post.y + _vertex2post.y + _vertex3post.y) / 3;
