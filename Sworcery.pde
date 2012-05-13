@@ -18,7 +18,11 @@ static final char PULSE_TYPE_PUSH = 1;
 
 boolean DEBUG = false;
 boolean tRotate = false;
-boolean tScale = true;
+boolean tScale = false;
+
+float timeSongStarted;
+float lastPulseTime = 0;
+float pulseInterval = 3000;
 
 void setup()
 {
@@ -39,7 +43,8 @@ void setup()
   // load a file, give the AudioPlayer buffers that are 2048 samples long
   player = minim.loadFile("UnknowableGeometry.mp3", 2048);
   // play the file
-  player.play();
+  //player.play();
+  timeSongStarted = millis();
   
   Triangle centerTri = new Triangle(
     new PVector(width/2, height/2),
@@ -78,6 +83,13 @@ void draw()
     trigon.rotation += radians(1 * 2);
   }
 
+  /*
+  if ((millis() - lastPulseTime) > pulseInterval) {
+    lastPulseTime = millis();
+    trigon.triggerPulse(PULSE_TYPE_PUSH);
+  }
+  */
+
   trigon.update();
   trigon.draw();
 }
@@ -94,6 +106,8 @@ void keyPressed() {
       tScale = !tScale;
     } else if ('r' == key) {
       tRotate = !tRotate;
+    } else if ('p' == key) {
+      trigon.triggerPulse(PULSE_TYPE_PUSH);
     }
   }
 }

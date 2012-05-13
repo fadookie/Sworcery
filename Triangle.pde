@@ -20,6 +20,7 @@ class Triangle {
   char tri_type = TRI_TYPE_CENTER;
   boolean solid = false;
   color myColor = color(255);
+  float opacity = 255;
     
   Triangle(PVector pos, float sideLength, float rot) {
     //Todo: add getters/setters
@@ -51,14 +52,14 @@ class Triangle {
 
     if (solid) {
       noStroke();
-      fill(myColor);
+      fill(myColor, opacity);
     } else {
-      stroke(myColor);
+      stroke(myColor, opacity);
       noFill();
     }
 
     if (DEBUG) {
-      stroke(myColor);
+      stroke(myColor, opacity);
       noFill();
     }
     
