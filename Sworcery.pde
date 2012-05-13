@@ -22,7 +22,7 @@ boolean tScale = false;
 
 float timeSongStarted;
 float lastPulseTime = 0;
-float pulseInterval = 3000;
+float pulseInterval = 60000 / 55; //Song is 55 BPM, there are 60000 Ms in a minute, pulse Interval is in beats per Ms
 
 int screenshotCount = 0;
 
@@ -44,9 +44,6 @@ void setup()
   
   // load a file, give the AudioPlayer buffers that are 2048 samples long
   player = minim.loadFile("UnknowableGeometry.mp3", 2048);
-  // play the file
-  player.play();
-  timeSongStarted = millis();
   
   Triangle centerTri = new Triangle(
     new PVector(width/2, height/2),
@@ -57,6 +54,12 @@ void setup()
   centerTri.myColor = color(212, 222, 177);
 
   trigon = new Trigon(centerTri);
+
+  // play music
+  player.play();
+  timeSongStarted = millis();
+  lastPulseTime = timeSongStarted;
+  println("songStarted = " + timeSongStarted);
 }
 
 void draw()
@@ -85,12 +88,10 @@ void draw()
     trigon.rotation += radians(1 * 2);
   }
 
-  /*
   if ((millis() - lastPulseTime) > pulseInterval) {
     lastPulseTime = millis();
     trigon.triggerPulse(PULSE_TYPE_PUSH);
   }
-  */
 
   trigon.update();
   trigon.draw();
