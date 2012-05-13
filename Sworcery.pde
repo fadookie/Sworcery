@@ -18,9 +18,11 @@ static final char TRI_TYPE_CENTROID = 2; //Treat Triangle#pos as centroid of tri
 
 //Types of Trigon pulses, for Trigon#triggerPulse
 static final char PULSE_TYPE_PUSH = 1; //Push border out by one and add another border in the center
-static final char PULSE_TYPE_PUSH_EMPTY = 2; //Push border out by one and add another border in the center
-static final char PULSE_TYPE_SQUEEZE = 3; //Throb center triangle, squeeze
-static final char PULSE_TYPE_ADD_BORDER = 4; //Add border around current one, up to specified max border amount
+static final char PULSE_TYPE_PUSH_EMPTY = 2; //Push border out by one spacer
+static final char PULSE_TYPE_PUSH_ADD = 3; //Push border out by one and add another border in the center, increasing max size
+static final char PULSE_TYPE_PUSH_ADD_EMPTY = 4; //Push border out by one spacer, increasing max size
+static final char PULSE_TYPE_SQUEEZE = 8; //Throb center triangle, squeeze
+static final char PULSE_TYPE_ADD_BORDER = 9; //Add border around current one, up to specified max border amount
 
 boolean DEBUG = false;
 boolean tRotate = false;
@@ -160,12 +162,22 @@ void keyPressed() {
       tRotate = !tRotate;
     } else if ('p' == key) {
       trigon.triggerPulse(PULSE_TYPE_PUSH);
+    } else if ('P' == key) {
+      trigon.triggerPulse(PULSE_TYPE_PUSH_ADD);
     } else if ('t' == key) {
       trigon.triggerPulse(PULSE_TYPE_SQUEEZE);
     } else if ('b' == key) {
       trigon.triggerPulse(PULSE_TYPE_ADD_BORDER);
     } else if ('e' == key) {
       trigon.triggerPulse(PULSE_TYPE_PUSH_EMPTY);
+    } else if ('E' == key) {
+      trigon.triggerPulse(PULSE_TYPE_PUSH_ADD_EMPTY);
+    } else if ('=' == key) {
+      trigon.maxBorders++;
+      println("maxBorders == " + trigon.maxBorders);
+    } else if ('-' == key) {
+      trigon.maxBorders--;
+      println("maxBorders == " + trigon.maxBorders);
     }
   }
 }

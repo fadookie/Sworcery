@@ -33,23 +33,33 @@ class Trigon {
   void triggerPulse(char pulseType) {
     if (!isPulseAnimating) {
       println("pulse triggered at " + millis() + " audio: " + music.position());
+
+      //These pulse types can be wrapped around more primitive ones, so we'll call triggerPulse recursively before setting up timers, bools, etc.
+      if (PULSE_TYPE_PUSH_ADD == pulseType) {
+        maxBorders++;
+        triggerPulse(PULSE_TYPE_PUSH);
+      } else if (PULSE_TYPE_PUSH_ADD_EMPTY == pulseType) {
+        maxBorders++;
+        triggerPulse(PULSE_TYPE_PUSH_EMPTY);
+      }
+
       lastPulse = millis();
       currentPulseType = pulseType;
       isPulseAnimating = true;
       //Pulse center triangle
-      if (PULSE_TYPE_PUSH == currentPulseType) {
+      if (PULSE_TYPE_PUSH == pulseType) {
         //push border out by one and add another border in the center
         Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() + 1, centerTri.rotation);
         newTri.myColor = myColor;
         _borderTris.addFirst(newTri);
-      } else if (PULSE_TYPE_PUSH_EMPTY == currentPulseType) {
+      } else if (PULSE_TYPE_PUSH_EMPTY == pulseType) {
         if (_borderTris.size() > 0) {
           //Only bother adding a spacer if there are already borders
           Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() + 1, centerTri.rotation);
           newTri.visible = false;
           _borderTris.addFirst(newTri);
         }
-      } else if (PULSE_TYPE_ADD_BORDER == currentPulseType) {
+      } else if (PULSE_TYPE_ADD_BORDER == pulseType) {
         if (_borderTris.size() < maxBorders) {
           Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() + _borderTris.size(), centerTri.rotation);
           newTri.myColor = myColor;
