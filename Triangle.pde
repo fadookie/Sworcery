@@ -16,6 +16,7 @@ class Triangle {
   private PVector _vertex3post = new PVector();
   private PVector _centroid = new PVector();
   float scaleFactor = 1;
+  float scaleFactorMultiplier = 1;
   
   //char tri_type = TRI_TYPE_CORNER;
   char tri_type = TRI_TYPE_CENTER;
@@ -58,6 +59,10 @@ class Triangle {
     setSideLengthScale(1);
   }
 
+  float getTotalScaleFactor() {
+    return scaleFactor * scaleFactorMultiplier;
+  }
+
   private void _setVertex3Radius(float r) {
     _vertex3polar.r = r;
     _vertex3 = _vertex3polar.getCartesianCoords();
@@ -91,9 +96,9 @@ class Triangle {
     
     //We apply the scaling factor directly to the vertices to ensure clean, 1px lines, scale() doesn't do this for all renderers.
     //This also lets us caclulate the correct centroid if we are drawing with TRI_TYPE_CENTER
-    _vertex1post.mult(scaleFactor);
-    _vertex2post.mult(scaleFactor);
-    _vertex3post.mult(scaleFactor);
+    _vertex1post.mult(getTotalScaleFactor());
+    _vertex2post.mult(getTotalScaleFactor());
+    _vertex3post.mult(getTotalScaleFactor());
 
     if (DEBUG) {
       //Draw pos in red
