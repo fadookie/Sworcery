@@ -33,7 +33,7 @@ class Trigon {
 
   void triggerPulse(char pulseType) {
     if (!isPulseAnimating) {
-      println("pulse triggered at " + millis());
+      println("pulse triggered at " + millis() + " audio: " + music.position());
       lastPulse = millis();
       currentPulseType = pulseType;
       isPulseAnimating = true;

@@ -5,9 +5,12 @@
 
 import ddf.minim.*;
 
-AudioPlayer player;
+AudioPlayer music;
 Minim minim;
 Trigon trigon;
+
+//Types of TimeEvents
+static final char EVENT_TYPE_PULSE = 1;
 
 //Ways to draw a triangle, for Triangle#tri_type
 static final char TRI_TYPE_CORNER = 1;
@@ -26,6 +29,9 @@ float pulseInterval = 60000 / 55; //Song is 55 BPM, there are 60000 Ms in a minu
 
 int screenshotCount = 0;
 
+ArrayDeque<TimeEvent> events = new ArrayDeque<TimeEvent>();
+ArrayList<TimeEvent> currentEvents = new ArrayList<TimeEvent>();
+
 void setup()
 {
   size(800, 800);
@@ -40,10 +46,10 @@ void setup()
   minim = new Minim(this);
   
   // load a file, give the AudioPlayer buffers that are 1024 samples long
-  // player = minim.loadFile("groove.mp3");
+  // music = minim.loadFile("groove.mp3");
   
   // load a file, give the AudioPlayer buffers that are 2048 samples long
-  player = minim.loadFile("UnknowableGeometry.mp3", 2048);
+  music = minim.loadFile("UnknowableGeometry.mp3", 2048);
   
   Triangle centerTri = new Triangle(
     new PVector(width/2, height/2),
@@ -55,8 +61,11 @@ void setup()
 
   trigon = new Trigon(centerTri);
 
+  //Setup timed events
+  events.add(new TimeEvent(EVENT_TYPE_PULSE, PULSE_TYPE_PUSH, 31110));
+
   // play music
-  player.play();
+  music.play();
   timeSongStarted = millis();
   lastPulseTime = timeSongStarted;
   println("songStarted = " + timeSongStarted);
@@ -73,10 +82,10 @@ void draw()
   // so we need to scale them up to see the waveform
   // note that if the file is MONO, left.get() and right.get() will return the same value
   /*
-  for(int i = 0; i < player.left.size()-1; i++)
+  for(int i = 0; i < music.left.size()-1; i++)
   {
-    line(i, 50 + player.left.get(i)*50, i+1, 50 + player.left.get(i+1)*50);
-    line(i, 150 + player.right.get(i)*50, i+1, 150 + player.right.get(i+1)*50);
+    line(i, 50 + music.left.get(i)*50, i+1, 50 + music.left.get(i+1)*50);
+    line(i, 150 + music.right.get(i)*50, i+1, 150 + music.right.get(i+1)*50);
   }
   */
   popMatrix();
@@ -87,6 +96,20 @@ void draw()
   if (tRotate) {
     trigon.rotation += radians(1 * 2);
   }
+
+
+  try {
+    TimeEvent nextEvent = events.peek();
+
+    if (null != nextEvent
+        && millis() > nextEvent.start
+    ){
+        //Time for this event to happen!
+        currentEvents.add(events.pop());
+    }
+  } catch (NoSuchElementException e) {
+  }
+
 
   if ((millis() - lastPulseTime) > pulseInterval) {
     lastPulseTime = millis();
@@ -123,7 +146,7 @@ void keyPressed() {
 void stop()
 {
   // always close Minim audio classes when you are done with them
-  player.close();
+  music.close();
   minim.stop();
   
   super.stop();
