@@ -11,6 +11,9 @@ Trigon trigon;
 
 //Types of TimeEvents
 static final char EVENT_TYPE_PULSE = 1; //Change how a trigon is pulsing
+static final char EVENT_TYPE_SCALE = 2; //Scale a trigon
+
+static final char EVENT_NO_SUBTYPE = 0;
 
 //Ways to draw a triangle, for Triangle#tri_type
 static final char TRI_TYPE_CORNER = 1;  //Treat Triangle#pos as upper left corner of triangle
@@ -73,6 +76,11 @@ void setup()
   println("songStarted = " + timeSongStarted);
 
   //Setup timed events
+  {
+    HashMap<String, Object> settings = new HashMap<String, Object>();
+    settings.put("maxScale", new Integer(5));
+    events.add(new TimeEvent(EVENT_TYPE_SCALE, EVENT_NO_SUBTYPE, 0, 28500, settings));
+  }
   events.add(new TimeEvent(EVENT_TYPE_PULSE, PULSE_TYPE_PUSH, 28500));
 
 }
@@ -104,6 +112,7 @@ void draw()
   }
 
 
+  //Identify events that should begin now
   try {
     TimeEvent nextEvent = events.peek();
 
@@ -119,6 +128,7 @@ void draw()
   }
 
 
+  //Process current events
   Iterator<TimeEvent> currentEventsIterator = currentEvents.iterator();
   while (currentEventsIterator.hasNext()) {
     TimeEvent currentEvent = currentEventsIterator.next();
@@ -133,7 +143,15 @@ void draw()
       if (EVENT_TYPE_PULSE == currentEvent.type) {
         if ((millis() - lastPulseTime) > pulseInterval) {
           lastPulseTime = millis();
-          trigon.triggerPulse(PULSE_TYPE_PUSH);
+          trigon.triggerPulse(currentEvent.subtype);
+        }
+      } else if (EVENT_TYPE_SCALE == currentEvent.type) {
+        Integer maxScale = (Integer)currentEvent.additionalSettings.get("maxScale");
+        if (maxScale != null) {
+          trigon.scaleFactor = lerp(1, maxScale, currentEvent.getCompletion(music.position()));
+        } else {
+          //Default to just scaling it up
+          trigon.scaleFactor += 0.01;
         }
       }
     }
@@ -178,6 +196,17 @@ void keyPressed() {
     } else if ('-' == key) {
       trigon.maxBorders--;
       println("maxBorders == " + trigon.maxBorders);
+    } else if (' ' == key) {
+      //Toggle music
+      if(music.isPlaying()) {
+        music.pause();
+      } else {
+        music.play();
+      }
+    } else if ('>' == key) {
+      music.skip(10000);
+    } else if ('<' == key) {
+      music.skip(-10000);
     }
   }
 }
