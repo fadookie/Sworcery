@@ -89,7 +89,11 @@ class Triangle {
       }
 
       if (DEBUG) {
-        stroke(myColor, opacity);
+        if (!visible) {
+          stroke(color(255, 0, 0, 255 / 3));
+        } else {
+          stroke(myColor, 255);
+        }
         noFill();
       }
       

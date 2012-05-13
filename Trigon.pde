@@ -78,6 +78,8 @@ class Trigon {
             _borderTris.removeLast();
           }
         }
+
+        trimBorder();
       } else {
         float pulsePercentComplete = (millis() - lastPulse) / pulseDuration;
         //Pulse is animating
@@ -98,6 +100,7 @@ class Trigon {
             }
           }
 
+
           //Process colors
           if (DEBUG) {
             for (Triangle tri : _borderTris) {
@@ -106,19 +109,25 @@ class Trigon {
             }
           }
 
-          Triangle first = _borderTris.getFirst();
-          if (first.visible) {
-            if (DEBUG) first.myColor = #0000FF;
-            first.opacity = lerp(50, 255, pulsePercentComplete);
+          try {
+            Triangle first = _borderTris.getFirst();
+            if (first.visible) {
+              if (DEBUG) first.myColor = #0000FF;
+              first.opacity = lerp(50, 255, pulsePercentComplete);
+            }
+          } catch (NoSuchElementException e) {
           }
 
-          Triangle last = _borderTris.getLast();
-          if (last.visible) {
-            //If we are going over the border limit, fade the last border out
-            if (_borderTris.size() > maxBorders) {
-              if (DEBUG) last.myColor = #00FF00;
-              last.opacity = lerp(255, 0, pulsePercentComplete);
+          try {
+            Triangle last = _borderTris.getLast();
+            if (last.visible) {
+              //If we are going over the border limit, fade the last border out
+              if (_borderTris.size() > maxBorders) {
+                if (DEBUG) last.myColor = #00FF00;
+                last.opacity = lerp(255, 0, pulsePercentComplete);
+              }
             }
+          } catch (NoSuchElementException e) {
           }
 
         } else if (PULSE_TYPE_ADD_BORDER == currentPulseType) {
@@ -130,6 +139,25 @@ class Trigon {
         } else if (PULSE_TYPE_SQUEEZE == currentPulseType) {
           throbCenterTriangle(pulsePercentComplete);
         }
+      }
+    }
+  }
+
+  /**
+   * Dispose of invisible outer border triangle(s)
+   */
+  void trimBorder() {
+    boolean done = false;
+    while (!done) {
+      try {
+        Triangle last = _borderTris.getLast();
+        if (!last.visible) {
+          _borderTris.removeLast();
+        } else {
+          done = true;
+        }
+      } catch (NoSuchElementException e) {
+        done = true;
       }
     }
   }
