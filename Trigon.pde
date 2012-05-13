@@ -21,7 +21,7 @@ class Trigon {
     rotation = t.rotation;
 
     for (int i = 0; i < numBorders; i++) {
-      _borderTris.add(new Triangle(centerTri.getPos(), centerTri.getSideLength() * (i + 2), centerTri.rotation));
+      _borderTris.add(new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() * (i + 2), centerTri.rotation));
     }
   }
 
@@ -35,7 +35,7 @@ class Trigon {
       //Pulse center triangle
       if (PULSE_TYPE_PUSH == currentPulseType) {
         //push border out by one and add another border in the center
-        Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideLength() * 2, centerTri.rotation);
+        Triangle newTri = new Triangle(centerTri.getPos(), centerTri.getSideBaseLength() + 1, centerTri.rotation);
         newTri.myColor = #FF0000;
         newTri.opacity = 255;
         _borderTris.addFirst(newTri);
@@ -49,8 +49,11 @@ class Trigon {
         //The pulse is over
         isPulseAnimating = false;
         if (PULSE_TYPE_PUSH == currentPulseType) {
-          _borderTris.removeLast();
+          //_borderTris.removeLast(); //DEBUGGING FIXME 
           scaleFactor = _prePulseScaleFactor;
+          for (Triangle tri : _borderTris) {
+            tri.bakeSideLength(); //Bake current scale factor so we can lerp from scale 1 to 2 on the next pulse
+          }
         }
       } else {
         float pulsePercentComplete = (millis() - lastPulse) / pulseDuration;
@@ -62,6 +65,9 @@ class Trigon {
           } else {
             //We're less than halfway done with the pulse
             scaleFactor = lerp(_prePulseScaleFactor, _prePulseScaleFactor + centerTriPulseAmount, pulsePercentComplete);
+            for (Triangle tri : _borderTris) {
+              tri.setSideLengthScale(lerp(1, 2, pulsePercentComplete * 2));
+            }
           }
           Triangle first = _borderTris.getFirst();
           //first.opacity += 0.1;
@@ -72,7 +78,7 @@ class Trigon {
     updateTriangle(centerTri);
 
     for (Triangle tri : _borderTris) {
-      updateTriangle(tri);
+      //updateTriangle(tri);
     }
   }
 

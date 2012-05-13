@@ -5,6 +5,7 @@
 class Triangle {
   private PVector _pos;
   private float _sideLength;
+  private float _sideLengthScale = 1;
   float rotation = radians(0);
   private PolarCoord _vertex3polar;
   private PVector _vertex3;
@@ -27,23 +28,45 @@ class Triangle {
     _pos = pos;
     _sideLength = sideLength;
     rotation = rot;
-    _vertex3polar = new PolarCoord(_sideLength, radians(60));
-    
-    _vertex3 = _vertex3polar.getCartesianCoords();
+
+    _vertex3polar = new PolarCoord(0, radians(60));
+    _setVertex3Radius(getSideTotalLength()); //This sets sets vertex3polar and vertex3
   }
 
   PVector getPos() {
     return _pos;
   }
 
-  float getSideLength() {
+  float getSideBaseLength() {
     return _sideLength;
+  }
+
+  float getSideTotalLength() {
+    return _sideLength * _sideLengthScale;
+  }
+
+  void setSideLengthScale(float scale) {
+    _sideLengthScale = scale;
+    _setVertex3Radius(getSideTotalLength());
+  }
+
+  /**
+   * "Bake" current side length scale into side length, reset scale to 1
+   */
+  void bakeSideLength() {
+    _sideLength = getSideTotalLength();
+    setSideLengthScale(1);
+  }
+
+  private void _setVertex3Radius(float r) {
+    _vertex3polar.r = r;
+    _vertex3 = _vertex3polar.getCartesianCoords();
   }
   
   void draw() {
     _vertex1post.x = 0;
     _vertex1post.y = 0;
-    _vertex2post.x = _sideLength;
+    _vertex2post.x = getSideTotalLength();
     _vertex2post.y = 0;
     _vertex3post = _vertex3.get();
     

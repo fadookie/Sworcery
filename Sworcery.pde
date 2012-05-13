@@ -24,6 +24,8 @@ float timeSongStarted;
 float lastPulseTime = 0;
 float pulseInterval = 3000;
 
+int screenshotCount = 0;
+
 void setup()
 {
   size(800, 800);
@@ -43,7 +45,7 @@ void setup()
   // load a file, give the AudioPlayer buffers that are 2048 samples long
   player = minim.loadFile("UnknowableGeometry.mp3", 2048);
   // play the file
-  //player.play();
+  player.play();
   timeSongStarted = millis();
   
   Triangle centerTri = new Triangle(
@@ -97,8 +99,13 @@ void draw()
 void keyPressed() {
   if (CODED != key) {
     if ('S' == key) {
-      saveFrame("screenshot.png");
-      println("screenshot.png saved");
+      try {
+        saveFrame(String.format("screenshot%02d.png", screenshotCount));
+        println("screenshot " + screenshotCount);
+        screenshotCount++;
+      } 
+      catch (Exception e) {
+      }
     } else if ('d' == key) {
       DEBUG = !DEBUG;
       println("DEBUG == " + DEBUG);
